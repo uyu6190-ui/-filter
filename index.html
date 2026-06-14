@@ -334,6 +334,86 @@
     text-decoration: none;
     margin-top: 10px;
   }
+
+  /* ================= About ================= */
+  /* タイトル画面の小さな about ボタン */
+  .about-link {
+    margin-top: 26px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--text-sub);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    padding: 8px 12px;
+  }
+  .about-link:active { opacity: 0.6; }
+
+  /* about シートの中身 */
+  .about-box { text-align: center; padding-top: 26px; background: #eaf3fa; }
+  .about-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 300;
+    font-size: 22px;
+    letter-spacing: 0.14em;
+    margin-top: 44px;
+    margin-bottom: 18px;
+  }
+  .about-thanks {
+    font-size: 13px;
+    line-height: 2;
+    color: var(--text);
+    margin-bottom: 22px;
+  }
+  /* メニュー項目（お問い合わせ・レビュー・同期など） */
+  .about-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 13px 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text);
+  }
+  .about-item:active { opacity: 0.6; }
+  .about-item.disabled {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+  }
+  .about-item .ai-title {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .about-item .ai-desc {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 3px;
+    line-height: 1.6;
+  }
+  .about-credit {
+    margin-top: 20px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--text-sub);
+  }
+  .about-credit a {
+    color: var(--blue-text);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .about-credit a:active { opacity: 0.6; }
 </style>
 </head>
 <body>
@@ -352,6 +432,8 @@
 
   <button class="btn btn-main btn-add" id="addBtn">＋ 写真・動画を追加</button>
   <p class="note">すべて端末内だけで処理されます（どこにも送信されません）</p>
+
+  <button class="about-link" id="aboutBtn">about perl rabbit</button>
 </div>
 
 <!-- ================= 編集画面 ================= -->
@@ -398,6 +480,48 @@
     <p class="sheet-hint" id="sheetHint"></p>
     <a class="btn btn-main" id="sheetDownload" download>ダウンロード</a>
     <button class="btn btn-sub" id="sheetClose">閉じる</button>
+  </div>
+</div>
+
+<!-- ================= About ================= -->
+<div class="sheet" id="aboutSheet">
+  <div class="sheet-box about-box">
+    <p class="about-title">about perl rabbit</p>
+
+    <p class="about-thanks">
+      お使いいただきありがとうございます。<br>
+      ご意見ご要望があれば教えてくださると<br>ほんとうにうれしいです。
+    </p>
+
+    <!-- お問い合わせ -->
+    <a class="about-item" id="aboutContact" target="_blank" rel="noopener">
+      <span class="ai-title">お問い合わせ</span>
+      <span class="ai-desc">不具合報告・ご意見ご要望をください</span>
+    </a>
+
+    <!-- レビュー -->
+    <a class="about-item" id="aboutReview" target="_blank" rel="noopener">
+      <span class="ai-title">★ レビューで応援する</span>
+      <span class="ai-desc">任意です。励みになります</span>
+    </a>
+
+    <!-- iCloud同期（準備中） -->
+    <button class="about-item disabled" id="aboutSync">
+      <span class="ai-title">☁︎ データをiCloudで同期</span>
+      <span class="ai-desc">準備中です（後ほど追加します）</span>
+    </button>
+
+    <!-- 他のアプリ（準備中） -->
+    <button class="about-item disabled" id="aboutOtherApps">
+      <span class="ai-title">other apps</span>
+      <span class="ai-desc">準備中です（後ほど追加します）</span>
+    </button>
+
+    <p class="about-credit">
+      created by <a id="aboutCredit" href="https://x.com/inuteddy12" target="_blank" rel="noopener">inu teddy</a>
+    </p>
+
+    <button class="btn btn-sub" id="aboutClose" style="margin-top:18px;">閉じる</button>
   </div>
 </div>
 
@@ -3556,6 +3680,61 @@ async function exportVideo() {
     els.busyText.textContent = `動画を書き出し中… ${p}%`;
   }, 250);
 }
+
+/* =========================================================
+   About シート
+   ※ 遷移先はここで設定できます（後から変更しやすいよう定数化）
+   ========================================================= */
+const ABOUT_CONFIG = {
+  // お問い合わせ先メールアドレス（件名つきのmailtoリンクを開きます）
+  contactEmail: "inuteddy12.dev@gmail.com",   // ←実際の連絡先に変更してください
+
+  // App Store のレビュー画面。アプリ公開後、IDを入れてください。
+  // 例: https://apps.apple.com/app/idXXXXXXXXXX?action=write-review
+  // （?action=write-review を付けると直接レビュー記入画面が開きます）
+  appStoreReviewURL: "",   // ←空のままだと「準備中」と表示します
+
+  // クレジットのリンク先（X）
+  creditURL: "https://x.com/inuteddy12",
+};
+
+const aboutEls = {
+  sheet: $("aboutSheet"),
+  openBtn: $("aboutBtn"),
+  closeBtn: $("aboutClose"),
+  contact: $("aboutContact"),
+  review: $("aboutReview"),
+  credit: $("aboutCredit"),
+};
+
+// お問い合わせ: 件名・本文の雛形を入れた mailto リンク
+aboutEls.contact.href =
+  "mailto:" + ABOUT_CONFIG.contactEmail +
+  "?subject=" + encodeURIComponent("perl rabbit へのお問い合わせ") +
+  "&body=" + encodeURIComponent("（不具合報告・ご意見ご要望をご記入ください）\n\n");
+
+// レビュー: URLが設定済みならリンク、未設定なら「準備中」表示にする
+if (ABOUT_CONFIG.appStoreReviewURL) {
+  aboutEls.review.href = ABOUT_CONFIG.appStoreReviewURL;
+} else {
+  aboutEls.review.classList.add("disabled");
+  aboutEls.review.removeAttribute("href");
+  const desc = aboutEls.review.querySelector(".ai-desc");
+  if (desc) desc.textContent = "準備中です（公開後にレビューできます）";
+}
+
+aboutEls.credit.href = ABOUT_CONFIG.creditURL;
+
+aboutEls.openBtn.addEventListener("click", () => {
+  aboutEls.sheet.style.display = "flex";
+});
+aboutEls.closeBtn.addEventListener("click", () => {
+  aboutEls.sheet.style.display = "none";
+});
+// シートの外側（暗い部分）をタップしても閉じる
+aboutEls.sheet.addEventListener("click", (e) => {
+  if (e.target === aboutEls.sheet) aboutEls.sheet.style.display = "none";
+});
 
 /* 環境が対応している録画形式を選ぶ（iOSは mp4、Chrome系は webm） */
 function pickRecorderMime() {

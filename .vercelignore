@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.git/
+.tmp-*
+
+APP_STORE_RELEASE.md
+app.js
+assets/
+capacitor.config.json
+data-model.js
+package-lock.json
+package.json
+scripts/
+store.js
+styles.css
